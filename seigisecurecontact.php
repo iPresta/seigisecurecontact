@@ -2,6 +2,7 @@
 
 /*
  * Created by / Stworzono przez SEIGI http://pl.seigi.eu/
+ * Modifed by / Mahdi Shad https://ipresta.ir/
  * MIT License
  * Utworzono  : Feb 17, 2018
  * Author     : SEIGI - Grzegorz Zawadzki <kontakt@seigi.eu>
@@ -38,9 +39,28 @@ class seigisecurecontact extends Module {
 			return true;
 		return false;
 	}
-	
 	public function hookdisplayHeader($hook_args) {
-		if($this->context->controller->php_self === 'contact'){
+		if (@$this->context->controller->php_self === 'contact'){
+			// postProccess
+			if (Tools::isSubmit('submitMessage'))
+			{
+				require_once _PS_MODULE_DIR_ . 'seigisecurecontact/seigisecurecontact.php';
+				$m = new seigisecurecontact();
+				$response = $m->verifyReCaptcha(array(
+					'secret' => Configuration::get('SRECAP_SECRET'),
+					'response' => Tools::getValue('g-recaptcha-response'),
+					'remoteip' => $_SERVER["REMOTE_ADDR"],
+				));
+				if(!$response['success']) {
+					$this->errors[] = Tools::displayError('You did not pass verification of reCaptcha and thus your form was not submitted. Verify yourself with reCaptcha first');
+					foreach ($response['error-codes'] as $erc) {
+						$this->errors[] = $m->reCapchaErrorTrnslate($erc);
+					}
+					unset($_POST['submitMessage']);
+					unset($_GET['submitMessage]);
+				}
+			}
+			
 			$this->context->controller->addJS($this->_path.'front.js');
 			$this->smarty->assign(array(
 				'recap_public' => Configuration::get('SRECAP_PUBLIC')
