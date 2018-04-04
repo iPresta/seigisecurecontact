@@ -44,9 +44,7 @@ class seigisecurecontact extends Module {
 			// postProccess
 			if (Tools::isSubmit('submitMessage'))
 			{
-				require_once _PS_MODULE_DIR_ . 'seigisecurecontact/seigisecurecontact.php';
-				$m = new seigisecurecontact();
-				$response = $m->verifyReCaptcha(array(
+				$response = $this->verifyReCaptcha(array(
 					'secret' => Configuration::get('SRECAP_SECRET'),
 					'response' => Tools::getValue('g-recaptcha-response'),
 					'remoteip' => $_SERVER["REMOTE_ADDR"],
@@ -54,10 +52,10 @@ class seigisecurecontact extends Module {
 				if(!$response['success']) {
 					$this->errors[] = Tools::displayError('You did not pass verification of reCaptcha and thus your form was not submitted. Verify yourself with reCaptcha first');
 					foreach ($response['error-codes'] as $erc) {
-						$this->errors[] = $m->reCapchaErrorTrnslate($erc);
+						$this->errors[] = $this->reCapchaErrorTrnslate($erc);
 					}
 					unset($_POST['submitMessage']);
-					unset($_GET['submitMessage]);
+					unset($_GET['submitMessage]');
 				}
 			}
 			
