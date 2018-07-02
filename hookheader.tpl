@@ -8,7 +8,4 @@
 *}
 
 
-<script type="text/javascript">
-	var seigi_recap_pub = "{$recap_public}";
-</script>
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+{addJsDef seigi_recap_pub=$recap_public}

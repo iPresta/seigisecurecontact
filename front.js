@@ -8,6 +8,6 @@
 */
 
 
-$(function(){
-	$('#submitMessage').after('<div style="text-align: center; margin: 10px"><div class="g-recaptcha" data-sitekey="' + seigi_recap_pub + '" style="display: inline-block"></div></div>');
+$(document).ready(function(){
+    $('#submitMessage').before('<div style="text-align: center; margin: 10px"><div class="g-recaptcha" data-sitekey="' + seigi_recap_pub + '" style="display: inline-block"></div></div>');
 });

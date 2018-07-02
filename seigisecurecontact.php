@@ -27,7 +27,6 @@ class seigisecurecontact extends Module {
 		// Do not try!, 1.7 contact form is module and cannot be overriden
 		$this->ps_versions_compliancy = array('min' => '1.5', 'max' => '1.6.999');
 
-
 		parent::__construct();
 
 		$this->displayName = $this->l('Secure Contact Form');
@@ -35,12 +34,12 @@ class seigisecurecontact extends Module {
 		$this->confirmUninstall = $this->l('Are you sure about removing these details?');
 	}
 	public function install() {
-		if(parent::install() && $this->registerHook('displayHeader'))
+		if(parent::install() && $this->registerHook('displayHeader') && $this->registerHook('displayCustomerAccountForm'))
 			return true;
 		return false;
 	}
 	public function hookdisplayHeader($hook_args) {
-		if (@$this->context->controller->php_self === 'contact'){
+		if (isset($this->context->controller->php_self) && $this->context->controller->php_self == 'contact'){
 			// postProccess
 			if (Tools::isSubmit('submitMessage'))
 			{
@@ -50,22 +49,24 @@ class seigisecurecontact extends Module {
 					'remoteip' => $_SERVER["REMOTE_ADDR"],
 				));
 				if(!$response['success']) {
-					$this->errors[] = Tools::displayError('You did not pass verification of reCaptcha and thus your form was not submitted. Verify yourself with reCaptcha first');
+					//$this->context->controller->errors[] = Tools::displayError('You did not pass verification of reCaptcha and thus your form was not submitted. Verify yourself with reCaptcha first');
 					foreach ($response['error-codes'] as $erc) {
-						$this->errors[] = $this->reCapchaErrorTrnslate($erc);
+						$this->context->controller->errors[] = $this->reCapchaErrorTrnslate($erc);
 					}
-					unset($_POST['submitMessage']);
-					unset($_GET['submitMessage]');
+					//unset($_POST['submitMessage']);
+					//unset($_GET['submitMessage']);
 				}
 			}
 			
 			$this->context->controller->addJS($this->_path.'front.js');
+			$this->context->controller->addJS('https://www.google.com/recaptcha/api.js');
 			$this->smarty->assign(array(
 				'recap_public' => Configuration::get('SRECAP_PUBLIC')
 			));
 			return $this->display(__FILE__, 'hookheader.tpl');
 		}
 	}
+	
 	public function reCapchaErrorTrnslate($error_code) {
 		$r = array(
 			'invalid-input-secret' => $this->l('The secret parameter is missing.'),
